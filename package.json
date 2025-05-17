@@ -1,0 +1,33 @@
+{
+  "name": "breach-signal-io",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "airtable": "^0.12.2",
+    "axios": "^1.6.0",
+    "next": "^13.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-google-recaptcha": "^3.1.0",
+    "react-icons": "^4.12.0",
+    "resend": "^2.0.0",
+    "sharp": "^0.34.1",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^13.4.0",
+    "postcss": "^8.4.0"
+  }
+}
