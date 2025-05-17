@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import dynamic from 'next/dynamic';
+import copy from 'copy-to-clipboard';
+import jsPDF from 'jspdf';
 
 const ReCAPTCHA = dynamic(
   () => import('react-google-recaptcha'),
@@ -63,6 +65,41 @@ export default function Home() {
     }
   };
 
+  // Helper to format the full report as plain text
+  const formatReport = () => {
+    if (!success || !success.breaches) return '';
+    return success.breaches.map((breach: any) => {
+      const title = `${breach.Title || breach.Name} (${breach.BreachDate || 'Unknown'}) – ${breach.Name}`;
+      const domain = breach.Domain ? `  Domain: ${breach.Domain}` : '';
+      const exposed = breach.DataClasses && breach.DataClasses.length > 0 ? `  Exposed data: ${breach.DataClasses.join(', ')}` : '';
+      const desc = breach.Description ? `  Description: ${breach.Description.replace(/<[^>]+>/g, '')}` : '';
+      return [title, domain, exposed, desc].filter(Boolean).join('\n');
+    }).join('\n\n');
+  };
+
+  // Helper to format the report as HTML for PDF
+  const formatReportHtml = () => {
+    if (!success || !success.breaches) return '';
+    return success.breaches.map((breach: any) => {
+      const title = `<b>${breach.Title || breach.Name} (${breach.BreachDate || 'Unknown'}) – ${breach.Name}</b>`;
+      const domain = breach.Domain ? `<div><b>Domain:</b> ${breach.Domain}</div>` : '';
+      const exposed = breach.DataClasses && breach.DataClasses.length > 0 ? `<div><b>Exposed data:</b> ${breach.DataClasses.join(', ')}</div>` : '';
+      const desc = breach.Description ? `<div><b>Description:</b> ${breach.Description}</div>` : '';
+      return [title, domain, exposed, desc].filter(Boolean).join('');
+    }).join('<br/><br/>');
+  };
+
+  const handleCopyReport = () => {
+    copy(formatReport());
+  };
+
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+    doc.text(formatReport(), 10, 10, { maxWidth: 190 });
+    doc.save('breach-report.pdf');
+  };
+
   return (
     <Layout>
       <div className="max-w-2xl mx-auto">
@@ -81,35 +118,72 @@ export default function Home() {
           <div className={`rounded-md p-4 mb-6 ${success.breachCount > 0 ? 'bg-highlight/10 border border-highlight text-highlight' : 'bg-accent/10 border border-accent text-primary'}`}>
             {success.breachCount > 0 ? (
               <>
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={handleCopyReport}
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm font-medium"
+                  >
+                    Copy Report
+                  </button>
+                  <button
+                    onClick={handleDownloadPDF}
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-sm font-medium"
+                  >
+                    Download PDF
+                  </button>
+                </div>
                 <h3 className="font-bold text-lg mb-2">We found {success.breachCount} breach{success.breachCount > 1 ? 'es' : ''} for your email:</h3>
                 <ul className="space-y-6">
-                  {success.breaches.map((breach: any, idx: number) => (
-                    <li key={idx} className="mb-6">
-                      <div className="flex items-center gap-3 mb-1">
-                        {breach.LogoPath && (
-                          <img src={breach.LogoPath} alt={breach.Title || breach.Name} className="h-8 w-8 rounded bg-white border" />
-                        )}
-                        <div className="font-semibold text-base">{breach.Title || breach.Name} <span className="text-xs text-gray-500">{breach.Domain && `(${breach.Domain})`}</span></div>
-                      </div>
-                      <div className="text-xs text-gray-500 mb-1">Breach date: {breach.BreachDate ? new Date(breach.BreachDate).toLocaleDateString() : 'Unknown'}</div>
-                      <div className="text-xs text-gray-500 mb-1">Added to HIBP: {breach.AddedDate ? new Date(breach.AddedDate).toLocaleDateString() : 'Unknown'}</div>
-                      <div className="text-xs text-gray-500 mb-1">Last modified: {breach.ModifiedDate ? new Date(breach.ModifiedDate).toLocaleDateString() : 'Unknown'}</div>
-                      <div className="text-xs text-gray-500 mb-1">Accounts affected: {breach.PwnCount ? breach.PwnCount.toLocaleString() : 'Unknown'}</div>
-                      {breach.Description && (
-                        <div className="text-sm mb-1" dangerouslySetInnerHTML={{ __html: breach.Description }} />
-                      )}
-                      {breach.DataClasses && breach.DataClasses.length > 0 && (
-                        <div className="text-xs mb-1">Exposed data: {breach.DataClasses.join(', ')}</div>
-                      )}
-                      <div className="flex flex-wrap gap-2 mt-1 text-xs">
-                        <span className="bg-gray-200 px-2 py-0.5 rounded">Verified: {breach.IsVerified ? 'Yes' : 'No'}</span>
-                        <span className="bg-gray-200 px-2 py-0.5 rounded">Sensitive: {breach.IsSensitive ? 'Yes' : 'No'}</span>
-                        <span className="bg-gray-200 px-2 py-0.5 rounded">Spam List: {breach.IsSpamList ? 'Yes' : 'No'}</span>
-                        <span className="bg-gray-200 px-2 py-0.5 rounded">Fabricated: {breach.IsFabricated ? 'Yes' : 'No'}</span>
-                        <span className="bg-gray-200 px-2 py-0.5 rounded">Retired: {breach.IsRetired ? 'Yes' : 'No'}</span>
-                      </div>
-                    </li>
-                  ))}
+                  {success.breaches.map((breach: any, idx: number) => {
+                    const badgeFields = [
+                      { key: 'IsVerified', label: 'Verified' },
+                      { key: 'IsFabricated', label: 'Fabricated' },
+                      { key: 'IsSensitive', label: 'Sensitive' },
+                      { key: 'IsRetired', label: 'Retired' },
+                      { key: 'IsSpamList', label: 'Spam List' },
+                      { key: 'IsMalware', label: 'Malware' },
+                      { key: 'IsSubscriptionFree', label: 'Subscription Free' },
+                      { key: 'IsStealerLog', label: 'Stealer Log' },
+                    ];
+                    return (
+                      <li key={idx} className="mb-6 border-b pb-4">
+                        <div className="flex items-center gap-3 mb-1">
+                          {breach.LogoPath && (
+                            <img src={breach.LogoPath} alt={breach.Title || breach.Name} className="h-8 w-8 rounded bg-white border" />
+                          )}
+                          <div className="font-semibold text-base">
+                            {breach.Title || breach.Name}
+                            {breach.BreachDate && (
+                              <span className="text-xs text-gray-500 ml-2">({new Date(breach.BreachDate).toLocaleDateString()})</span>
+                            )}
+                            {breach.Domain && (
+                              <span className="text-xs text-gray-500 ml-2">– {breach.Domain}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 mb-1">
+                          {breach.Domain && <div><b>Domain:</b> {breach.Domain}</div>}
+                          {breach.BreachDate && <div><b>Breach date:</b> {new Date(breach.BreachDate).toLocaleDateString()}</div>}
+                          {breach.AddedDate && <div><b>Added to HIBP:</b> {new Date(breach.AddedDate).toLocaleDateString()}</div>}
+                          {breach.ModifiedDate && <div><b>Last modified:</b> {new Date(breach.ModifiedDate).toLocaleDateString()}</div>}
+                          {breach.PwnCount && <div><b>Accounts affected:</b> {breach.PwnCount.toLocaleString()}</div>}
+                          {breach.DataClasses && breach.DataClasses.length > 0 && (
+                            <div><b>Exposed data:</b> {breach.DataClasses.join(', ')}</div>
+                          )}
+                          {breach.Description && (
+                            <div className="text-sm mb-1" dangerouslySetInnerHTML={{ __html: `<b>Description:</b> ${breach.Description}` }} />
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-2 mt-1 text-xs">
+                          {badgeFields.map(({ key, label }) =>
+                            key in breach ? (
+                              <span key={key} className={`px-2 py-0.5 rounded ${breach[key] ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>{label}: {breach[key] ? 'Yes' : 'No'}</span>
+                            ) : null
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </>
             ) : (

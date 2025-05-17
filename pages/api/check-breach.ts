@@ -46,7 +46,7 @@ export default async function handler(
 
     // Check HaveIBeenPwned API
     const hibpResponse = await axios.get(
-      `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}`,
+      `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}?truncateResponse=false`,
       {
         headers: {
           'hibp-api-key': process.env.HIBP_API_KEY,
@@ -54,6 +54,7 @@ export default async function handler(
         },
       }
     );
+    console.log('[HIBP API Response]', hibpResponse.data);
 
     const breaches = hibpResponse.data || [];
     const breachCount = breaches.length;
