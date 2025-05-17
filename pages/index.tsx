@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import Layout from '../components/Layout';
-import ReCAPTCHA from 'react-google-recaptcha';
+import dynamic from 'next/dynamic';
+
+const ReCAPTCHA = dynamic(() => import('react-google-recaptcha'), {
+  ssr: false
+});
 
 interface FormData {
   email: string;
