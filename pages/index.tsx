@@ -1,7 +1,12 @@
+// Fix for Vercel: Inline type declaration for react-google-recaptcha
+// @ts-ignore
+declare module 'react-google-recaptcha';
+
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import dynamic from 'next/dynamic';
 
+// @ts-ignore
 const ReCAPTCHA = dynamic(() => import('react-google-recaptcha'), {
   ssr: false
 });
@@ -20,17 +25,11 @@ export default function Home() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recaptchaValue, setRecaptchaValue] = useState<string | null>(null);
   const [success, setSuccess] = useState<null | { breachCount: number; breaches: any[] }>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    if (!recaptchaValue) {
-      setError('Please complete the reCAPTCHA verification');
-      return;
-    }
 
     setIsSubmitting(true);
 
@@ -42,7 +41,6 @@ export default function Home() {
         },
         body: JSON.stringify({
           ...formData,
-          recaptchaToken: recaptchaValue,
         }),
       });
 
@@ -155,13 +153,6 @@ export default function Home() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               value={formData.company}
               onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <ReCAPTCHA
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
-              onChange={(value) => setRecaptchaValue(value)}
             />
           </div>
 

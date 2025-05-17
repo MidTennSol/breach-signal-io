@@ -35,13 +35,20 @@ export default function Layout({ children }: LayoutProps) {
             <span className="text-4xl font-extrabold" style={{ color: '#083a5d' }}>BreachSignal.io</span>
           </Link>
         </div>
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
-          aria-label="Toggle dark mode"
-        >
-          {darkMode ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard">
+            <button className="px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors">
+              Admin Dashboard
+            </button>
+          </Link>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
       <main className="container mx-auto px-4 py-8">
         {children}
