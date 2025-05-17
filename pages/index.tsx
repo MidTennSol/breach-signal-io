@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import Layout from '../components/Layout';
+import dynamic from 'next/dynamic';
+
+const ReCAPTCHA = dynamic(
+  () => import('react-google-recaptcha'),
+  { ssr: false }
+) as typeof import('react-google-recaptcha');
 
 interface FormData {
   email: string;
@@ -16,10 +22,16 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<null | { breachCount: number; breaches: any[] }>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!recaptchaToken) {
+      setError('Please complete the reCAPTCHA.');
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -31,6 +43,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           ...formData,
+          recaptchaToken,
         }),
       });
 
@@ -143,6 +156,13 @@ export default function Home() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
               value={formData.company}
               onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+            />
+          </div>
+
+          <div>
+            <ReCAPTCHA
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+              onChange={(token: string | null) => setRecaptchaToken(token)}
             />
           </div>
 
