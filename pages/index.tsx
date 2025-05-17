@@ -1,15 +1,5 @@
-// Fix for Vercel: Inline type declaration for react-google-recaptcha
-// @ts-ignore
-declare module 'react-google-recaptcha';
-
 import { useState } from 'react';
 import Layout from '../components/Layout';
-import dynamic from 'next/dynamic';
-
-// @ts-ignore
-const ReCAPTCHA = dynamic(() => import('react-google-recaptcha'), {
-  ssr: false
-});
 
 interface FormData {
   email: string;
