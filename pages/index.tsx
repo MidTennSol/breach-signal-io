@@ -131,78 +131,109 @@ export default function Home() {
   const WEBSITE = 'www.breachsignal.io';
 
   const drawHeader = (doc: any, y: number) => {
+    // Draw logo as a square (30x30), vertically centered
+    let logoSize = 30, logoY = y + 8, logoX = 25;
+    let textStartX = logoX + logoSize + 8;
+    let textY = y + 18;
+    if (window && window._pdfLogoCache) {
+      doc.addImage(window._pdfLogoCache.base64, 'PNG', logoX, logoY, logoSize, logoSize);
+    }
+    // Company name
     doc.setFontSize(18);
     doc.setTextColor(8, 58, 93);
-    doc.text(COMPANY_NAME, 105, y + 10, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text(COMPANY_NAME, textStartX, textY, { align: 'left', maxWidth: 160 });
+    // Tagline
     doc.setFontSize(11);
     doc.setTextColor(14, 165, 233);
-    doc.text(TAGLINE, 105, y + 17, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.text(TAGLINE, textStartX, textY + 8, { align: 'left', maxWidth: 160 });
+    // Contact info
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(`${CONTACT_EMAIL} | ${CONTACT_PHONE} | ${CONTACT_ADDRESS} | ${WEBSITE}`, 105, y + 23, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    const contact = `${CONTACT_EMAIL} | ${CONTACT_PHONE} | ${CONTACT_ADDRESS} | ${WEBSITE}`;
+    const contactLines = doc.splitTextToSize(contact, 185 - textStartX);
+    doc.text(contactLines, textStartX, textY + 16, { align: 'left' });
+    // Divider line
     doc.setDrawColor(14, 165, 233);
-    doc.line(20, y + 27, 190, y + 27);
-    return y + 32;
+    doc.line(25, y + 43, 185, y + 43);
+    // Reset font and color to default for next section
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    return y + 53; // Add extra space after header
   };
 
   const drawFooter = (doc: any, pageHeight: number) => {
     doc.setDrawColor(14, 165, 233);
-    doc.line(20, pageHeight - 22, 190, pageHeight - 22);
+    doc.line(25, pageHeight - 22, 185, pageHeight - 22);
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(`${COMPANY_NAME} | ${CONTACT_EMAIL} | ${CONTACT_PHONE} | ${CONTACT_ADDRESS} | ${WEBSITE}`, 105, pageHeight - 15, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    const contact = `${COMPANY_NAME} | ${CONTACT_EMAIL} | ${CONTACT_PHONE} | ${CONTACT_ADDRESS} | ${WEBSITE}`;
+    const contactLines = doc.splitTextToSize(contact, 160);
+    // Add more space between lines
+    let footerY = pageHeight - 15;
+    contactLines.forEach((line: string) => {
+      doc.text(line, 105, footerY, { align: 'center' });
+      footerY += 6; // Increased line spacing
+    });
     doc.setFontSize(9);
     doc.setTextColor(14, 165, 233);
-    doc.text(TAGLINE, 105, pageHeight - 9, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.text(TAGLINE, 105, footerY, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
   };
 
   const handleDownloadPDF = async () => {
     setPdfLoading(true);
     const doc = new jsPDF();
     let y = 10;
+    // Load logo and cache for header
     try {
       const { base64: logoBase64, width, height } = await getBase64AndSizeFromUrl('/logo.png');
-      let drawWidth = 60, drawHeight = 30;
-      const aspect = width / height;
-      if (width > height) {
-        drawHeight = Math.min(30, 60 / aspect);
-        drawWidth = drawHeight * aspect;
-      } else {
-        drawWidth = Math.min(60, 30 * aspect);
-        drawHeight = drawWidth / aspect;
-      }
-      doc.addImage(logoBase64, 'PNG', 20, y, drawWidth, drawHeight);
-      y += drawHeight + 2;
+      window._pdfLogoCache = { base64: logoBase64, width: 60, height: 30 };
     } catch (e) {
-      y += 32;
+      window._pdfLogoCache = null;
     }
-    y = drawHeader(doc, y - 32); // header after logo
+    // Draw header only on first page
+    y = drawHeader(doc, y);
     // Top CTA
     doc.setFontSize(16);
     doc.setTextColor(220, 38, 38);
+    doc.setFont('helvetica', 'bold');
     doc.textWithLink('***** Book a Security Audit *****', 105, y + 8, { url: CALENDLY_URL, align: 'center' });
     y = y + 20;
     // Section title
     doc.setFontSize(14);
     doc.setTextColor(8, 58, 93);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Breach Report', 105, y, { align: 'center' });
     y += 10;
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    const leftMargin = 20;
-    const rightMargin = 190;
+    const leftMargin = 25;
+    const rightMargin = 185;
     const bottomMargin = 270;
     const pageHeight = 297;
+    let isFirstPage = true;
     if (success && success.breaches) {
       success.breaches.forEach((breach: any, idx: number) => {
         if (y > bottomMargin) {
           drawFooter(doc, pageHeight);
           doc.addPage();
-          y = drawHeader(doc, 10);
+          y = 20;
+          isFirstPage = false;
         }
-        doc.setFont(undefined, 'bold');
+        if (!isFirstPage && y === 20) {
+          y = 20;
+        }
+        // Explicitly set color/font for each section
+        doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.setTextColor(8, 58, 93);
         const title = `${breach.Title || breach.Name} (${breach.BreachDate || 'Unknown'}) – ${breach.Domain || ''}`;
@@ -210,11 +241,12 @@ export default function Home() {
         if (y + splitTitle.length * 7 > bottomMargin) {
           drawFooter(doc, pageHeight);
           doc.addPage();
-          y = drawHeader(doc, 10);
+          y = 20;
+          isFirstPage = false;
         }
         doc.text(splitTitle, leftMargin, y);
         y += splitTitle.length * 7;
-        doc.setFont(undefined, 'normal');
+        doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
         const infoRows = [
@@ -226,27 +258,36 @@ export default function Home() {
           breach.DataClasses && breach.DataClasses.length > 0 && `Exposed data: ${breach.DataClasses.join(', ')}`
         ].filter(Boolean);
         infoRows.forEach(row => {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(0, 0, 0);
           const s = doc.splitTextToSize(row, rightMargin - leftMargin);
           if (y + s.length * 6 > bottomMargin) {
             drawFooter(doc, pageHeight);
             doc.addPage();
-            y = drawHeader(doc, 10);
+            y = 20;
+            isFirstPage = false;
           }
           doc.text(s, leftMargin, y);
           y += s.length * 6;
         });
         if (breach.Description) {
-          doc.setFont(undefined, 'italic');
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(10);
+          doc.setTextColor(80, 120, 180);
           const desc = breach.Description.replace(/<[^>]+>/g, '');
           const splitDesc = doc.splitTextToSize(desc, rightMargin - leftMargin);
           if (y + splitDesc.length * 6 > bottomMargin) {
             drawFooter(doc, pageHeight);
             doc.addPage();
-            y = drawHeader(doc, 10);
+            y = 20;
+            isFirstPage = false;
           }
           doc.text(splitDesc, leftMargin, y);
           y += splitDesc.length * 6;
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(0, 0, 0);
         }
         // Boolean badges
         const badgeFields = [
@@ -264,16 +305,19 @@ export default function Home() {
           if (key in breach) badgeLine += `${label}: ${breach[key] ? 'Yes' : 'No'}   `;
         });
         if (badgeLine) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(8, 58, 93);
           const s = doc.splitTextToSize(badgeLine, rightMargin - leftMargin);
           if (y + s.length * 6 > bottomMargin) {
             drawFooter(doc, pageHeight);
             doc.addPage();
-            y = drawHeader(doc, 10);
+            y = 20;
+            isFirstPage = false;
           }
-          doc.setFont(undefined, 'bold');
-          doc.setTextColor(8, 58, 93);
           doc.text(s, leftMargin, y);
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
           doc.setTextColor(0, 0, 0);
           y += s.length * 6;
         }
@@ -284,10 +328,11 @@ export default function Home() {
     if (y + 16 > bottomMargin) {
       drawFooter(doc, pageHeight);
       doc.addPage();
-      y = drawHeader(doc, 10);
+      y = 20;
     }
     doc.setFontSize(16);
     doc.setTextColor(220, 38, 38);
+    doc.setFont('helvetica', 'bold');
     doc.textWithLink('***** Book a Security Audit *****', 105, y, { url: CALENDLY_URL, align: 'center' });
     drawFooter(doc, pageHeight);
     doc.save('breach-report.pdf');

@@ -91,17 +91,15 @@ BreachSignal.io is a lead generation tool and micro-service that offers free bre
 
 ### 1. Branded PDF Export
 - [x] Add your company logo to the top of the PDF.
-- [ ] Add company name, tagline, and contact info (email, website) to header/footer.
-- [ ] Use brand colors and fonts for headings and section dividers.
-- [ ] Format breach results for clarity (tables, bold headings, etc.).
+- [x] Add company name, tagline, and contact info (email, website, phone, address) to header/footer.
+- [x] Use brand colors and fonts for headings and section dividers.
+- [x] Format breach results for clarity (tables, bold headings, etc.).
 - [x] Add a "Book a Security Audit" link/button in the PDF (links to Calendly).
 - [x] Polish layout for multi-page reports.
 
-**Next Step:**
-- Add company name, tagline, and contact info to header/footer.
-- Apply brand colors and formatting.
-- Format breach results for clarity.
-- Await user input for preferred logo file, tagline, or contact info (otherwise use current assets).
+**Status:**
+- Code committed, pushed, and Vercel deploy in progress.
+- Branded PDF export is complete and ready for review.
 
 ### 2. Email Automation with Resend
 - [ ] Polish the email template: add logo, brand colors, and a summary of results.
