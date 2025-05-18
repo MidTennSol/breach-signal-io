@@ -32,8 +32,8 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background text-textdark dark:bg-gray-900 dark:text-white transition-colors duration-200">
-      <header className="flex items-center justify-between px-6 py-4 bg-transparent relative">
-        <div className="flex items-center min-w-[5rem] sm:min-w-[7rem]">
+      <header className="flex flex-col items-center px-6 py-4 bg-transparent relative">
+        <div className="flex items-center min-w-[5rem] sm:min-w-[7rem] mb-2">
           <div className="flex items-center justify-center h-16 w-16 sm:h-28 sm:w-28 cursor-pointer" onClick={() => {
             if (router.pathname !== '/') {
               router.push('/');
@@ -44,13 +44,11 @@ export default function Layout({ children }: LayoutProps) {
           }} title="Go to Home">
             <img src="/logo.png" alt="BreachSignal.io Logo" className="h-16 w-16 sm:h-28 sm:w-28 object-contain" />
           </div>
-        </div>
-        <div className="absolute left-1/2 transform -translate-x-1/2 top-4 sm:top-8">
-          <span className="text-2xl sm:text-4xl font-extrabold text-primary" style={{ letterSpacing: '0.01em' }}>
+          <span className="text-2xl sm:text-4xl font-extrabold text-primary ml-4" style={{ letterSpacing: '0.01em' }}>
             BreachSignal.io
           </span>
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-2 min-w-[10rem] justify-end">
+        <nav className="flex flex-wrap gap-2 min-w-[10rem] justify-center mb-2">
           <button
             onClick={() => {
               router.push('/');
@@ -60,6 +58,26 @@ export default function Layout({ children }: LayoutProps) {
           >
             Home
           </button>
+          <Link href="/whois-lookup" className="w-full sm:w-auto">
+            <button className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors">
+              WHOIS Lookup
+            </button>
+          </Link>
+          <Link href="/ip-reputation" className="w-full sm:w-auto">
+            <button className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors">
+              IP Reputation
+            </button>
+          </Link>
+          <Link href="/site-security-scan" className="w-full sm:w-auto">
+            <button className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors">
+              Site Security Scan
+            </button>
+          </Link>
+          <Link href="/osint-tools" className="w-full sm:w-auto">
+            <button className="w-full sm:w-auto px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors">
+              OSINT Toolbox
+            </button>
+          </Link>
           <Link href="/dashboard" className="w-full sm:w-auto">
             <button className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors">
               Admin Dashboard
@@ -72,7 +90,7 @@ export default function Layout({ children }: LayoutProps) {
           >
             {darkMode ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
           </button>
-        </div>
+        </nav>
       </header>
       <main className="container mx-auto px-2 sm:px-4 py-2 sm:py-8">
         {children}
