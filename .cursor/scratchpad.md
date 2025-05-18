@@ -83,4 +83,43 @@ BreachSignal.io is a lead generation tool and micro-service that offers free bre
 - Keep API keys secure in environment variables
 - Implement proper error handling for all API calls
 - Ensure responsive design from the start
-- Follow security best practices for form handling 
+- Follow security best practices for form handling
+
+---
+
+## Feature Milestones and Next Steps (2024-06)
+
+### 1. Branded PDF Export
+- [x] Add your company logo to the top of the PDF.
+- [ ] Add company name, tagline, and contact info (email, website) to header/footer.
+- [ ] Use brand colors and fonts for headings and section dividers.
+- [ ] Format breach results for clarity (tables, bold headings, etc.).
+- [x] Add a "Book a Security Audit" link/button in the PDF (links to Calendly).
+- [x] Polish layout for multi-page reports.
+
+**Next Step:**
+- Add company name, tagline, and contact info to header/footer.
+- Apply brand colors and formatting.
+- Format breach results for clarity.
+- Await user input for preferred logo file, tagline, or contact info (otherwise use current assets).
+
+### 2. Email Automation with Resend
+- [ ] Polish the email template: add logo, brand colors, and a summary of results.
+- [ ] Include a "Download PDF" link or attach the PDF (if feasible).
+- [ ] Add a Calendly "Book Now" button/link in the email.
+- [ ] Ensure emails are sent reliably and are not marked as spam.
+- [ ] (Optional) Let users opt-in to receive their report by email.
+
+### 3. Calendly Integration
+- [ ] Add a Calendly widget or "Book Now" button to the main page and dashboard.
+- [ ] Add the same link/button to emails and PDFs.
+- [ ] (Optional) Track bookings in Airtable or via email notification.
+
+### 4. (Optional) Advanced Features
+- [ ] Email opt-in checkbox on the form.
+- [ ] Admin notification for new leads.
+- [ ] Analytics for PDF downloads, email opens, and Calendly bookings.
+
+---
+
+**This section will be kept up to date as we progress through each milestone.** 
