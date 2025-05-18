@@ -35,7 +35,10 @@ async function getDMARC(domain: string) {
 async function getDNSSEC(domain: string) {
   try {
     const records = await dns.resolve(domain, 'DNSKEY');
-    return records.length > 0;
+    if (Array.isArray(records)) {
+      return records.length > 0;
+    }
+    return false;
   } catch {
     return false;
   }
