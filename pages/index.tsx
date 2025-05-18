@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import dynamic from 'next/dynamic';
 import copy from 'copy-to-clipboard';
@@ -55,6 +55,16 @@ export default function Home() {
   const [success, setSuccess] = useState<null | { breachCount: number; breaches: any[] }>(null);
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [showCalendlyModal, setShowCalendlyModal] = useState(false);
+
+  // Show modal only once when breaches are found
+  useEffect(() => {
+    if (success && success.breachCount > 0) {
+      setShowCalendlyModal(true);
+    } else {
+      setShowCalendlyModal(false);
+    }
+  }, [success?.breachCount]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -343,6 +353,42 @@ export default function Home() {
   return (
     <Layout>
       <div className="max-w-2xl mx-auto">
+        {/* Always-visible Calendly button at the top */}
+        <div className="flex justify-center mb-6">
+          <a
+            href={CALENDLY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-6 py-3 bg-accent text-white font-bold rounded-lg shadow hover:bg-primary transition-colors text-lg"
+          >
+            Book a Security Audit
+          </a>
+        </div>
+        {/* Modal for breach found */}
+        {success && success.breachCount > 0 && showCalendlyModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+            <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center border-2 border-accent">
+              <h2 className="text-2xl font-bold text-red-600 mb-2">You have vulnerabilities</h2>
+              <p className="mb-4 text-gray-700">Schedule a security audit now to protect your business and data.</p>
+              <a
+                href={CALENDLY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-6 py-3 bg-accent text-white font-bold rounded-lg shadow hover:bg-primary transition-colors text-lg mb-2"
+              >
+                Book Now
+              </a>
+              <div>
+                <button
+                  onClick={() => setShowCalendlyModal(false)}
+                  className="mt-2 text-gray-500 hover:text-gray-800 underline text-sm"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {!success && (
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
