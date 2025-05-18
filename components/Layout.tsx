@@ -32,14 +32,34 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background text-textdark dark:bg-gray-900 dark:text-white transition-colors duration-200">
-      <header className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-        <div className="flex flex-col xs:flex-row items-center gap-2 xs:gap-3 w-full sm:w-auto justify-center sm:justify-start">
-          <Link href="/" className="flex flex-col xs:flex-row items-center gap-1 xs:gap-3 group" aria-label="Home">
-            <img src="/logo.png" alt="BreachSignal.io Logo" className="h-10 w-10 xs:h-14 xs:w-14 sm:h-20 sm:w-20 md:h-32 md:w-32 transition-all" />
-            <span className="text-lg xs:text-2xl sm:text-4xl font-extrabold" style={{ color: '#083a5d' }}>BreachSignal.io</span>
-          </Link>
+      <header className="flex items-center justify-between px-6 py-4 bg-transparent relative">
+        <div className="flex items-center min-w-[5rem] sm:min-w-[7rem]">
+          <div className="flex items-center justify-center h-16 w-16 sm:h-28 sm:w-28 cursor-pointer" onClick={() => {
+            if (router.pathname !== '/') {
+              router.push('/');
+            } else {
+              // Emit a custom event to clear results on the home page
+              window.dispatchEvent(new CustomEvent('clearHomeResults'));
+            }
+          }} title="Go to Home">
+            <img src="/logo.png" alt="BreachSignal.io Logo" className="h-16 w-16 sm:h-28 sm:w-28 object-contain" />
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 w-full sm:w-auto justify-center sm:justify-end">
+        <div className="absolute left-1/2 transform -translate-x-1/2 top-4 sm:top-8">
+          <span className="text-2xl sm:text-4xl font-extrabold text-primary" style={{ letterSpacing: '0.01em' }}>
+            BreachSignal.io
+          </span>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center gap-2 min-w-[10rem] justify-end">
+          <button
+            onClick={() => {
+              router.push('/');
+              window.dispatchEvent(new CustomEvent('clearHomeResults'));
+            }}
+            className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors"
+          >
+            Home
+          </button>
           <Link href="/dashboard" className="w-full sm:w-auto">
             <button className="w-full sm:w-auto px-4 py-2 rounded bg-gray-200 text-primary font-semibold hover:bg-gray-300 transition-colors">
               Admin Dashboard

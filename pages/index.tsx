@@ -66,6 +66,19 @@ export default function Home() {
     }
   }, [success?.breachCount]);
 
+  // Listen for clearHomeResults event to reset state
+  useEffect(() => {
+    const handler = () => {
+      setSuccess(null);
+      setFormData({ email: '', name: '', company: '' });
+      setError(null);
+      setRecaptchaToken(null);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    window.addEventListener('clearHomeResults', handler);
+    return () => window.removeEventListener('clearHomeResults', handler);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
