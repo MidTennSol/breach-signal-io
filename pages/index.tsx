@@ -130,13 +130,13 @@ export default function Home() {
   const CONTACT_ADDRESS = '1234 Security Ave, Suite 100, Cyber City, USA';
   const WEBSITE = 'www.breachsignal.io';
 
-  const drawHeader = (doc: any, y: number) => {
+  const drawHeader = (doc: any, y: number, pdfLogoCache: { base64: string; width: number; height: number } | null) => {
     // Draw logo as a square (30x30), vertically centered
     let logoSize = 30, logoY = y + 8, logoX = 25;
     let textStartX = logoX + logoSize + 8;
     let textY = y + 18;
-    if (window && window._pdfLogoCache) {
-      doc.addImage(window._pdfLogoCache.base64, 'PNG', logoX, logoY, logoSize, logoSize);
+    if (pdfLogoCache) {
+      doc.addImage(pdfLogoCache.base64, 'PNG', logoX, logoY, logoSize, logoSize);
     }
     // Company name
     doc.setFontSize(18);
@@ -192,15 +192,16 @@ export default function Home() {
     setPdfLoading(true);
     const doc = new jsPDF();
     let y = 10;
-    // Load logo and cache for header
+    // Load logo for header
+    let pdfLogoCache: { base64: string; width: number; height: number } | null = null;
     try {
       const { base64: logoBase64, width, height } = await getBase64AndSizeFromUrl('/logo.png');
-      window._pdfLogoCache = { base64: logoBase64, width: 60, height: 30 };
+      pdfLogoCache = { base64: logoBase64, width: 60, height: 30 };
     } catch (e) {
-      window._pdfLogoCache = null;
+      pdfLogoCache = null;
     }
     // Draw header only on first page
-    y = drawHeader(doc, y);
+    y = drawHeader(doc, y, pdfLogoCache);
     // Top CTA
     doc.setFontSize(16);
     doc.setTextColor(220, 38, 38);
