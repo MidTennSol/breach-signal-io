@@ -248,4 +248,38 @@ The BreachSignal OSINT Toolbox aims to expand our security tooling capabilities 
   - Store historical data in a backend database (e.g., PostgreSQL, Supabase, or Firebase).
   - Allow users to view, search, and export their lookup/breach history.
   - Enable admin to manage users, view usage stats, and monitor system health.
-- Remove the debug toggle from user profiles in production; keep it only for admin/developer accounts. 
+- Remove the debug toggle from user profiles in production; keep it only for admin/developer accounts.
+
+## Troubleshooting: Vercel Not Deploying Latest Commit
+
+If Vercel is building an old commit (commit hash in build log does not match your latest), follow these steps:
+
+1. **Check GitHub Repo**
+   - Go to your GitHub repo and confirm the latest commit hash matches your local `git log`.
+   - If not, push your changes: `git push origin main`.
+
+2. **Check Vercel Project Settings**
+   - Go to Vercel dashboard → Project → Settings → Git.
+   - Confirm the Git repository and branch are correct (`main`).
+
+3. **Trigger a Manual Redeploy**
+   - In Vercel, go to Deployments.
+   - Click “Redeploy” on the latest deployment.
+   - Select “Clear build cache.”
+   - Confirm the commit hash in the build log matches your latest commit.
+
+4. **Disconnect and Reconnect GitHub Integration (if needed)**
+   - If Vercel keeps pulling the wrong commit, disconnect the GitHub integration and reconnect it.
+   - Re-link the correct repo and branch.
+
+5. **Check for Multiple Remotes/Branches**
+   - Run `git remote -v` and `git branch -a` locally.
+   - Make sure you are pushing to the same remote/branch Vercel is building from.
+
+6. **If All Else Fails**
+   - Delete the Vercel project and re-create it, linking to the correct repo/branch.
+
+**Root Cause:**
+- Vercel is not pulling the latest code from GitHub, often due to branch/repo mismatch, webhook issues, or integration problems—not a cache/build issue.
+
+**Always check the commit hash in the Vercel build log!** 

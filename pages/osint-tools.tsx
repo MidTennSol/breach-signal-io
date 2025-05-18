@@ -170,13 +170,13 @@ export default function OsintTools() {
                 <div className="flex justify-center">
                   <ReCAPTCHA
                     sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
-                    onChange={token => setRecaptchaToken(token)}
+                    onChange={(token: string | null) => setRecaptchaToken(token)}
                   />
                 </div>
               )}
               <button
                 type="submit"
-                disabled={loading || (email && !recaptchaToken)}
+                disabled={loading || (!!email && !recaptchaToken)}
                 className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {loading ? 'Scanning...' : 'Scan All'}
